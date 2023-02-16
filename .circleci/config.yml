@@ -1,16 +1,22 @@
-version: 3.3
+version: 3.5
 jobs:
   build:
     working_directory: ~/repo
     docker:
-      - image: cimg/node:18.10.0
+      - image: circleci/android:api-30-node
+    environment:
+      JVM_OPTS: -Xmx3200m
+      JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
       - run:
           name: Install Dependencies
           command: npm install
+      - run:
+          name: Set up Android SDK
+          command: |
+            echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-30" "build-tools;30.0.3" "extras;android;m2repository" "extras;google;m2repository"
+            echo y | android-sdk-linux/tools/bin/sdkmanager --licenses
       - run:
           name: Run tests
           command: npm run test
