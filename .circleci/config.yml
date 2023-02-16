@@ -1,39 +1,16 @@
-version: 4.7
-
+version: 4.8
 jobs:
-  main:
+  build:
+    working_directory: ~/repo
     docker:
-      - image: circleci/android:api-30-node
+      - image: cimg/node:18.10.0
     steps:
       - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "yarn.lock" }}
       - run:
           name: Install Dependencies
-          command: |
-            yarn install
-            npx jetify
-
-  build:
-    docker:
-      - image: circleci/android:api-30-node
-    steps:
-      - attach_workspace:
-          at: ~/repo
+          command: npm install
       - run:
-          name: Build APK
-          command: |
-            cd android && ./gradlew assembleRelease
-      - store_artifacts:
-          path: android/app/build/outputs/apk/release/app-release.apk
-          destination: app-release.apk
-
-workflows:
-  version: 2
-  build:
-    jobs:
-      - main:
-          filters:
-            branches:
-              only: main
-      - build:
-          requires:
-            - main
+          name: Run tests
+          command: npm run test
