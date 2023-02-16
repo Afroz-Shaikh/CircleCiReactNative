@@ -1,31 +1,24 @@
-version: 4.3
+version: 2.1
 
 orbs:
-  android: circleci/android@2.0.0
+  react-native: circleci/react-native@1.0.1
 
 jobs:
   build:
-    working_directory: ~/repo
     executor:
-      name: android/default
-      tag: '30'
+      name: react-native/android
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: |
-            nvm install --lts
-            nvm use --lts
-            echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-30" "build-tools;30.0.3" "platform-tools"
-            echo y | android-sdk-linux/tools/bin/sdkmanager --licenses
-            echo y | android-sdk-linux/tools/bin/sdkmanager --update
-            echo y | android-sdk-linux/tools/bin/sdkmanager --list
-      - run:
-          name: Run tests
-          command: npm run test
+      - react-native/install
       - run:
           name: Build APK
-          command: npx react-native run-android --variant=release
+          command: |
+            cd android && ./gradlew assembleRelease
       - store_artifacts:
           path: android/app/build/outputs/apk/release/app-release.apk
           destination: app-release.apk
+
+workflows:
+  build:
+    jobs:
+      - build
