@@ -1,34 +1,48 @@
-version: 3
+version: 3.0
 jobs:
   build:
     docker:
-      - image: ubuntu:latest
+      - image: circleci/android:api-30
     steps:
       - checkout
-      - run: |
-          apt-get update && \
-          apt-get install -y openjdk-11-jdk curl unzip && \
-          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
       - run:
-          name: Download and install Android Studio
+          name: Install JDK 11
           command: |
-            curl https://dl.google.com/dl/android/studio/ide-zips/2020.3.1.0/android-studio-2020.3.1.0-linux.tar.gz --output android-studio.tar.gz
-            tar -xvf android-studio.tar.gz
-            mv android-studio /opt/
-            echo 'export PATH=$PATH:/opt/android-studio/bin' >> ~/.bashrc
-            source ~/.bashrc
+            sudo apt-get update && \
+            sudo apt-get install -y openjdk-11-jdk
+      - run:
+          name: Install Android Studio
+          command: |
+            sudo apt-get install -y wget unzip libxtst6 libxrender1 libxi6 && \
+            wget --quiet --output-document=android-studio.zip https://dl.google.com/dl/android/studio/ide-zips/2020.3.1.0/android-studio-2020.3.1.0-linux.tar.gz && \
+            gzip -dc android-studio.zip | tar xvf - && \
+            mv android-studio /opt/ && \
+            echo 'export PATH=$PATH:/opt/android-studio/bin' >> $BASH_ENV && \
+            source $BASH_ENV
       - run:
           name: Install Android SDK
           command: |
-            yes | sdkmanager --licenses
-            yes | sdkmanager "platforms;android-30" "build-tools;30.0.3" "platform-tools"
+            yes | sdkmanager --licenses && \
+            sdkmanager "platforms;android-30" "build-tools;30.0.3" "platform-tools"
       - run:
           name: Set Android home environment variable
           command: |
-            echo 'export ANDROID_HOME=/root/Android/Sdk' >> ~/.bashrc
-            source ~/.bashrc
-      - run: npm install
-      - run: npx react-native doctor
+            echo 'export ANDROID_HOME=/usr/local/android-sdk' >> $BASH_ENV && \
+            source $BASH_ENV
+      - run:
+          name: Install node.js and npm
+          command: |
+            curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && \
+            sudo apt-get install -y nodejs && \
+            sudo npm install -g n && \
+            sudo n latest && \
+            sudo npm install -g npm
+      - run:
+          name: Install project dependencies
+          command: npm install
+      - run:
+          name: Run React Native doctor
+          command: npx react-native doctor
       - run:
           name: Build APK
           command: npx react-native run-android --variant=release
