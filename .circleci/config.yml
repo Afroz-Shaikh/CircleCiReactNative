@@ -1,15 +1,16 @@
-version: 4.4
-
-orbs:
-  react-native: circleci/react-native@1.0.1
+version: 4.5
 
 jobs:
   build:
-    executor:
-      name: react-native/android
+    docker:
+      - image: circleci/android:api-30-node
     steps:
       - checkout
-      - react-native/install
+      - run:
+          name: Install Dependencies
+          command: |
+            yarn install
+            npx jetify
       - run:
           name: Build APK
           command: |
