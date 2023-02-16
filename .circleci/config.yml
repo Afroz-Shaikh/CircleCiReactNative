@@ -1,29 +1,25 @@
 version: 2.1
-
 jobs:
-  build:
-    working_directory: ~/repo
+  android:
+    working_directory: ~/darkknight
     docker:
-      - image: circleci/android:api-30-node
+      - image: reactnativecommunity/react-native-android
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
-      - run:
-          name: Install Dependencies
-          command: |
-            yarn install
-            npx jetify
-      - run:
-          name: Build APK
-          command: |
-            cd android && ./gradlew assembleRelease
+      - run: npx envinfo
+      - run: yarn install
+      # daemon mode has bug on circleCI
+      - run: cd android && chmod +x gradlew && ./gradlew --no-daemon bundleRelease assembleRelease
+      - run: cd android/app/build/outputs/apk/release && ls && pwd
       - store_artifacts:
-          path: android/app/build/outputs/apk/release/app-release.apk
-          destination: app-release.apk
+          path: android/app/build/outputs/bundle/release
+          destination: release-aab/
+      - store_artifacts:
+          path: android/app/build/outputs/apk/release
+          destination: release-apk/
 
 workflows:
   version: 2
-  build:
+  build_and_test:
     jobs:
-      - build
+      - android
