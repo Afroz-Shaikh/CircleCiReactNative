@@ -1,0 +1,28 @@
+version: 1
+jobs:
+  build:
+    docker:
+      - image: node:latest
+    steps:
+      - checkout
+      - run: npx react-native doctor
+      - run: pwd
+      - run: npx react-native info
+
+      # - Building Apk
+      - run:
+          name: Build APK
+          command: npx react-native run-android --variant=release
+
+      # Building Ipa's
+      - run:
+          name: Build IPA
+          command: npx react-native run-ios --configuration Release
+
+      # Storing Artifacts -->
+      - store_artifacts:
+          path: android/app/build/outputs/apk/release/app-release.apk
+          destination: app-release.apk
+      # - store_artifacts:
+      #     path: ios/build/Build/Products/Release-iphoneos/*.ipa
+      #     destination: app.ipa
