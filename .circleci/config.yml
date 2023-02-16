@@ -22,12 +22,13 @@ jobs:
           command: |
             yes | sdkmanager --licenses
             yes | sdkmanager "platforms;android-30" "build-tools;30.0.3" "platform-tools"
-      - env:
-          ANDROID_HOME: /root/Android/Sdk
+      - run:
+          name: Set Android home environment variable
+          command: |
+            echo 'export ANDROID_HOME=/root/Android/Sdk' >> ~/.bashrc
+            source ~/.bashrc
       - run: npm install
       - run: npx react-native doctor
-      - run: pwd
-      - run: npx react-native info
       - run:
           name: Build APK
           command: npx react-native run-android --variant=release
