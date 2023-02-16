@@ -1,14 +1,30 @@
-version: 2
+version: 3
 jobs:
   build:
     docker:
-      - image: node:latest
+      - image: ubuntu:latest
     steps:
       - checkout
       - run: |
           apt-get update && \
-          apt-get install -y openjdk-11-jdk && \
+          apt-get install -y openjdk-11-jdk curl unzip && \
           export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      - run:
+          name: Download and install Android Studio
+          command: |
+            curl https://dl.google.com/dl/android/studio/ide-zips/2020.3.1.0/android-studio-2020.3.1.0-linux.tar.gz --output android-studio.tar.gz
+            tar -xvf android-studio.tar.gz
+            mv android-studio /opt/
+            echo 'export PATH=$PATH:/opt/android-studio/bin' >> ~/.bashrc
+            source ~/.bashrc
+      - run:
+          name: Install Android SDK
+          command: |
+            yes | sdkmanager --licenses
+            yes | sdkmanager "platforms;android-30" "build-tools;30.0.3" "platform-tools"
+      - env:
+          ANDROID_HOME: /root/Android/Sdk
+      - run: npm install
       - run: npx react-native doctor
       - run: pwd
       - run: npx react-native info
