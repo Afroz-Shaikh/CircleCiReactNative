@@ -1,4 +1,4 @@
-version: 1
+version: 2
 jobs:
   build:
     docker:
@@ -6,27 +6,15 @@ jobs:
     steps:
       - checkout
       - run: |
-          sudo apt-get update && \
-          sudo apt-get install -y openjdk-11-jdk && \
+          apt-get update && \
+          apt-get install -y openjdk-11-jdk && \
           export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
       - run: npx react-native doctor
       - run: pwd
       - run: npx react-native info
-
-      # - Building Apk
       - run:
           name: Build APK
           command: npx react-native run-android --variant=release
-
-      # Building Ipa's
-      - run:
-          name: Build IPA
-          command: npx react-native run-ios --configuration Release
-
-      # Storing Artifacts -->
       - store_artifacts:
           path: android/app/build/outputs/apk/release/app-release.apk
           destination: app-release.apk
-      # - store_artifacts:
-      #     path: ios/build/Build/Products/Release-iphoneos/*.ipa
-      #     destination: app.ipa
