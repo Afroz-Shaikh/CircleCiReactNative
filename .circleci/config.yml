@@ -1,4 +1,4 @@
-version: 3.1
+version: 3.3
 jobs:
   build:
     working_directory: ~/repo
@@ -14,3 +14,9 @@ jobs:
       - run:
           name: Run tests
           command: npm run test
+      - run:
+          name: Build APK
+          command: npx react-native run-android --variant=release
+      - store_artifacts:
+          path: android/app/build/outputs/apk/release/app-release.apk
+          destination: app-release.apk
