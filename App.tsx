@@ -6,7 +6,7 @@ const App = () => {
     <SafeAreaView
       style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
       <View>
-        <Text>Hello World</Text>
+        <Text>Hello Afroz</Text>
       </View>
     </SafeAreaView>
   );
